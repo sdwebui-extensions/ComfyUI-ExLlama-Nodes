@@ -4,21 +4,6 @@ import random
 from pathlib import Path
 from time import time
 
-from exllamav2 import (
-    ExLlamaV2,
-    ExLlamaV2Cache,
-    ExLlamaV2Cache_Q4,
-    ExLlamaV2Cache_Q6,
-    ExLlamaV2Cache_Q8,
-    ExLlamaV2Config,
-    ExLlamaV2Tokenizer,
-)
-from exllamav2.generator import (
-    ExLlamaV2DynamicGenerator,
-    ExLlamaV2DynamicJob,
-    ExLlamaV2Sampler,
-)
-
 from comfy.model_management import soft_empty_cache, unload_all_models
 from comfy.utils import ProgressBar
 from folder_paths import add_model_folder_path, get_folder_paths, models_dir
@@ -26,6 +11,15 @@ from folder_paths import add_model_folder_path, get_folder_paths, models_dir
 _CATEGORY = "Zuellni/ExLlama"
 _MAPPING = "ZuellniExLlama"
 
+ExLlamaV2Tokenizer = None
+ExLlamaV2 = None
+ExLlamaV2Cache = None
+ExLlamaV2Cache_Q4 = None
+ExLlamaV2Cache_Q6 = None
+ExLlamaV2Cache_Q8 = None
+ExLlamaV2DynamicGenerator = None
+ExLlamaV2DynamicJob = None
+ExLlamaV2Sampler = None
 
 class Loader:
     @classmethod
@@ -58,6 +52,7 @@ class Loader:
     RETURN_TYPES = ("EXL_MODEL",)
 
     def setup(self, model, cache_bits, fast_tensors, flash_attention, max_seq_len):
+        from exllamav2 import ExLlamaV2Config
         self.unload()
         self.cache_bits = cache_bits
         self.config = ExLlamaV2Config(__class__._MODELS[model])
@@ -85,6 +80,11 @@ class Loader:
             and self.generator
         ):
             return
+        global ExLlamaV2Tokenizer, ExLlamaV2, ExLlamaV2Cache_Q8, ExLlamaV2Cache_Q6, ExLlamaV2Cache_Q4, ExLlamaV2Cache
+        global ExLlamaV2DynamicGenerator, ExLlamaV2DynamicJob, ExLlamaV2Sampler
+        if ExLlamaV2Tokenizer is None:
+            from exllamav2 import ExLlamaV2Tokenizer, ExLlamaV2, ExLlamaV2Cache_Q8, ExLlamaV2Cache_Q6, ExLlamaV2Cache_Q4, ExLlamaV2Cache
+            from exllamav2.generator import ExLlamaV2DynamicGenerator, ExLlamaV2DynamicJob, ExLlamaV2Sampler
 
         self.model = ExLlamaV2(self.config)
         progress = ProgressBar(len(self.model.modules) + 1)
