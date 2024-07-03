@@ -7,6 +7,7 @@ from time import time
 from comfy.model_management import soft_empty_cache, unload_all_models
 from comfy.utils import ProgressBar
 from folder_paths import add_model_folder_path, get_folder_paths, models_dir
+import os
 
 _CATEGORY = "Zuellni/ExLlama"
 _MAPPING = "ZuellniExLlama"
@@ -25,6 +26,8 @@ class Loader:
     @classmethod
     def INPUT_TYPES(cls):
         add_model_folder_path("llm", str(Path(models_dir) / "llm"))
+        if os.path.exists("/stable-diffusion-cache/models/llm"):
+            add_model_folder_path("llm", "/stable-diffusion-cache/models/llm")
 
         for folder in get_folder_paths("llm"):
             for path in Path(folder).rglob("*/"):
