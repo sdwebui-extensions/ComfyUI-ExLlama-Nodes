@@ -10,6 +10,7 @@ from comfy.model_management import soft_empty_cache, unload_all_models
 from comfy.utils import ProgressBar
 from folder_paths import add_model_folder_path, get_folder_paths, models_dir
 import os
+import glob
 llm_models = {}
 add_model_folder_path("llm", str(Path(models_dir) / "llm"))
 if os.path.exists("/stable-diffusion-cache/models/llm"):
