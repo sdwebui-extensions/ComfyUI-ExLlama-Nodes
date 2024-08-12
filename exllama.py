@@ -4,20 +4,6 @@ import random
 from pathlib import Path
 from time import time
 
-from exllamav2 import (
-    ExLlamaV2,
-    ExLlamaV2Cache,
-    ExLlamaV2Cache_Q4,
-    ExLlamaV2Cache_Q6,
-    ExLlamaV2Cache_Q8,
-    ExLlamaV2Config,
-    ExLlamaV2Tokenizer,
-)
-from exllamav2.generator import (
-    ExLlamaV2DynamicGenerator,
-    ExLlamaV2DynamicJob,
-    ExLlamaV2Sampler,
-)
 from jinja2 import Template
 
 from comfy.model_management import soft_empty_cache, unload_all_models
@@ -100,7 +86,10 @@ class Loader:
             if self.config.max_input_len > max_seq_len:
                 self.config.max_input_len = max_seq_len
                 self.config.max_attention_size = max_seq_len**2
-
+        global ExLlamaV2Tokenizer
+        if ExLlamaV2Tokenizer is None:
+            from exllamav2 import ExLlamaV2Tokenizer
+    
         self.tokenizer = ExLlamaV2Tokenizer(self.config)
         return (self,)
 
