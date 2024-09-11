@@ -165,7 +165,7 @@ class Formatter:
         )
 
     def format(self, model, messages, add_assistant_role):
-        template = model.tokenizer.tokenizer_config_dict["chat_template"]
+        template = model.tokenizer.tokenizer_config_dict.get("chat_template", "{% set loop_messages = messages %}{% for message in loop_messages %}{% set content = '<|start_header_id|>' + message['role'] + '<|end_header_id|>\n\n'+ message['content'] | trim + '<|eot_id|>' %}{% if loop.index0 == 0 %}{% set content = bos_token + content %}{% endif %}{{ content }}{% endfor %}{{ '<|start_header_id|>assistant<|end_header_id|>\n\n' }}")
         template = Template(template)
 
         try:
@@ -250,6 +250,11 @@ class Settings:
         typical,
         temperature_last,
     ):
+        global ExLlamaV2Tokenizer, ExLlamaV2, ExLlamaV2Cache_Q8, ExLlamaV2Cache_Q6, ExLlamaV2Cache_Q4, ExLlamaV2Cache
+        global ExLlamaV2DynamicGenerator, ExLlamaV2DynamicJob, ExLlamaV2Sampler
+        if ExLlamaV2Tokenizer is None:
+            from exllamav2 import ExLlamaV2Tokenizer, ExLlamaV2, ExLlamaV2Cache_Q8, ExLlamaV2Cache_Q6, ExLlamaV2Cache_Q4, ExLlamaV2Cache
+            from exllamav2.generator import ExLlamaV2DynamicGenerator, ExLlamaV2DynamicJob, ExLlamaV2Sampler
         settings = ExLlamaV2Sampler.Settings()
         settings.temperature = temperature
         settings.token_repetition_penalty = penalty
@@ -302,6 +307,12 @@ class Generator:
         tokens_len = tokens.shape[-1]
         max_len = model.config.max_seq_len - tokens_len
         stop = [model.tokenizer.eos_token_id]
+
+        global ExLlamaV2Tokenizer, ExLlamaV2, ExLlamaV2Cache_Q8, ExLlamaV2Cache_Q6, ExLlamaV2Cache_Q4, ExLlamaV2Cache
+        global ExLlamaV2DynamicGenerator, ExLlamaV2DynamicJob, ExLlamaV2Sampler
+        if ExLlamaV2Tokenizer is None:
+            from exllamav2 import ExLlamaV2Tokenizer, ExLlamaV2, ExLlamaV2Cache_Q8, ExLlamaV2Cache_Q6, ExLlamaV2Cache_Q4, ExLlamaV2Cache
+            from exllamav2.generator import ExLlamaV2DynamicGenerator, ExLlamaV2DynamicJob, ExLlamaV2Sampler
 
         if not max_tokens or max_tokens > max_len:
             max_tokens = max_len
