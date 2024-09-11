@@ -276,7 +276,7 @@ class Settings:
     ):
         global ExLlamaV2Tokenizer, ExLlamaV2, ExLlamaV2Cache_Q8, ExLlamaV2Cache_Q6, ExLlamaV2Cache_Q4, ExLlamaV2Cache
         global ExLlamaV2DynamicGenerator, ExLlamaV2DynamicJob, ExLlamaV2Sampler
-        if ExLlamaV2Tokenizer is None:
+        if ExLlamaV2Sampler is None:
             from exllamav2 import ExLlamaV2Tokenizer, ExLlamaV2, ExLlamaV2Cache_Q8, ExLlamaV2Cache_Q6, ExLlamaV2Cache_Q4, ExLlamaV2Cache
             from exllamav2.generator import ExLlamaV2DynamicGenerator, ExLlamaV2DynamicJob, ExLlamaV2Sampler
         settings = ExLlamaV2Sampler.Settings()
