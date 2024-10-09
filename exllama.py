@@ -11,21 +11,9 @@ from comfy.utils import ProgressBar
 from folder_paths import add_model_folder_path, get_folder_paths, models_dir
 import os
 import glob
-llm_models = {}
 add_model_folder_path("llm", str(Path(models_dir) / "llm"))
 if os.path.exists("/stable-diffusion-cache/models/llm"):
     add_model_folder_path("llm", "/stable-diffusion-cache/models/llm")
-
-for folder in get_folder_paths("llm"):
-    if folder == "/stable-diffusion-cache/models/llm":
-        for model_folder in glob.iglob(f"{folder}/*"):
-            if os.path.exists(os.path.join(model_folder, "config.json")):
-                llm_models[os.path.basename(model_folder)] = Path(model_folder)
-    else:
-        for path in Path(folder).rglob("*/"):
-            if (path / "config.json").is_file():
-                parent = path.relative_to(folder).parent
-                llm_models[str(parent / path.name)] = path
 
 _CATEGORY = "zuellni/exllama"
 _MAPPING = "ZuellniExLlama"
@@ -41,14 +29,28 @@ ExLlamaV2DynamicJob = None
 ExLlamaV2Sampler = None
 
 class Loader:
+    _input_info = None
+
     @classmethod
     def INPUT_TYPES(cls):
-        for key in llm_models:
-            cls._MODELS[key] = llm_models[key]
+        def get_input_info(cls):
+            add_model_folder_path("llm", str(Path(models_dir) / "llm"))
 
-        models = list(cls._MODELS.keys())
-        caches = list(cls._CACHES.keys())
-        default = models[0] if models else None
+            for folder in get_folder_paths("llm"):
+                for path in Path(folder).rglob("*/"):
+                    if (path / "config.json").is_file():
+                        parent = path.relative_to(folder).parent
+                        cls._MODELS[str(parent / path.name)] = path
+
+            models = list(cls._MODELS.keys())
+            caches = list(cls._CACHES.keys())
+            default = models[0] if models else None
+
+            return models, caches, default
+
+        if Loader._input_info is None:
+            Loader._input_info = get_input_info(cls)
+        models, caches, default = Loader._input_info
 
         return {
             "required": {
